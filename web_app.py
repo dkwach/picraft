@@ -32,7 +32,13 @@ def sensor_loop():
     acc_api = MPU9150()
     print(id(acc_api))
     while True:
-        acceleration = acc_api.get_accel()
+        try:
+            acceleration = acc_api.get_accel()
+        except Exception as exc:  # keep the loop alive on flaky wiring
+            print(f"MPU read failed: {exc}")
+            time.sleep(ACC_SAMPLE_INTERVAL)
+            continue
+
         with acc_condition:
             acc_state["value"] = {
                 axis: value for axis, value in zip("xyz", acceleration)

@@ -1,2 +1,3 @@
 flask
+mcpi
 smbus2

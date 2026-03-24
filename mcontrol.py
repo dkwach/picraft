@@ -40,7 +40,7 @@ def hit_stream(endpoint: str) -> Iterator[bool]:
             time.sleep(2)
 
 
-def dig_forward(mc: Minecraft) -> None:
+def build_block(mc: Minecraft) -> None:
     x, y, z = mc.player.getTilePos()
     mc.setBlocks(x + 1, y + 1, z + 1, x + 2, y + 2, z + 2, block.WOOD.id)
 
@@ -53,14 +53,13 @@ def post(mc: Minecraft, msg: str):
 def main() -> None:
     endpoint = HIT_ENDPOINT
     mc = Minecraft.create()
-    # mc = None
     post(mc, f"{CHAT_PREFIX} listening on {endpoint}")
 
     last_state = False
     for hit_state in hit_stream(endpoint):
         if hit_state and not last_state:
-            post(mc, f"{CHAT_PREFIX} Hit detected — mining!")
-            dig_forward(mc)
+            post(mc, f"{CHAT_PREFIX} Hit detected!")
+            build_block(mc)
         last_state = hit_state
 
 
