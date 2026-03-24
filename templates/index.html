@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Creating Real-Time Charts with Flask</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const config = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "x",
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: [],
+                    fill: false,
+                },
+                {
+                    label: "y",
+                    backgroundColor: 'rgb(255, 99, 200)',
+                    borderColor: 'rgb(255, 99, 200)',
+                    data: [],
+                    fill: false,
+                },
+                {
+                    label: "z",
+                    backgroundColor: 'rgb(100, 99, 200)',
+                    borderColor: 'rgb(100, 99, 200)',
+                    data: [],
+                    fill: false,
+                }],
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Acceleration'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        type: 'linear',
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'm/s^2'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const context = document.getElementById('canvas').getContext('2d');
+
+        const lineChart = new Chart(context, config);
+
+        const source = new EventSource("/acceleration");
+
+        source.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (config.data.labels.length === 40) {
+                config.data.labels.shift();
+                config.data.datasets[0].data.shift();
+                config.data.datasets[1].data.shift();
+                config.data.datasets[2].data.shift();
+            }
+            config.data.labels.push(data.time);
+            config.data.datasets[0].data.push(data.acc.x);
+            config.data.datasets[1].data.push(data.acc.y);
+            config.data.datasets[2].data.push(data.acc.z);
+            lineChart.update();
+        }
+    });
+</script>
+
+<h1 id="fatalityHeader" style="text-align:center"></h1>
+
+<ul>
+</ul>
+
+<script>
+var evtSource = new EventSource("/hit");
+var eventList = document.querySelector('ul');
+
+evtSource.onmessage = function(e) {
+  const data = JSON.parse(e.data);
+  var newElement = document.createElement("li");
+
+  newElement.textContent = "Hit discovered: " + data.hit;
+  eventList.appendChild(newElement);
+
+  if (data.hit) {
+  fatalityHeader.innerText = "FATALITY!!!";
+  } else {
+  fatalityHeader.innerText = "KarateKid: Wax on, right hand. Wax off, left hand. Wax on, wax off. Breathe in through nose, out the mouth. Wax on, wax off. Don't forget to breathe, very important.";
+  }
+}
+</script>
+</body>
+</html>
