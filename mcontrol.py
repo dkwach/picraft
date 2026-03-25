@@ -7,7 +7,7 @@ import requests
 from mcpi import block
 from mcpi.minecraft import Minecraft
 
-HIT_ENDPOINT = os.environ.get("HIT_ENDPOINT", "http://192.168.0.145:5000/hit")
+HIT_ENDPOINT = os.environ.get("HIT_ENDPOINT", "http://127.0.0.1:5000/hit")
 MINING_SWINGS = int(os.environ.get("MINING_SWINGS", "5"))
 CHAT_PREFIX = "[mcontrol]"
 
